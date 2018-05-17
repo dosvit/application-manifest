@@ -1,0 +1,416 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "manifest-spec": {
+      "type": "string",
+      "title": "Dosvit manifest schema version"
+    },
+    "version": {
+      "type": "string",
+      "title": "Application version",
+      "description": "Should follow semantic versioning rules https://semver.org/"
+    },
+    "name": {
+      "type": "string",
+      "title": "Application name",
+      "description": "Technical (e.g. repository or slug) name, alphanumeric with dashes"
+    },
+    "icons": {
+      "type": "object",
+      "title": "Application icons",
+      "description": "Monochrome line-styled SVG icons. Should be provided at least one, will be selected most suitable",
+      "minProperties": 1,
+      "maxProperties": 3,
+      "properties": {
+        "small": {
+          "type": "string",
+          "title": "Minimum detailed icon for under 32px usage"
+        },
+        "medium": {
+          "type": "string",
+          "title": "Medium detailed icon for 32px — 64px usage"
+        },
+        "large": {
+          "type": "string",
+          "title": "Highly detailed icon for more than 64px usage"
+        }
+      }
+    },
+    "i18n": {
+      "type": "object",
+      "title": "Internationalization properties",
+      "description": "Application can support multiple UI languages and be multilingual or monolingual. If application does not support current site language, the most suitable will be selected via content negotiation",
+      "properties": {
+        "translations": {
+          "type": "array",
+          "title": "Translations",
+          "description": "List of languages that application is translated to in ISO 639-1 codes",
+          "minItems": 1,
+          "items": [
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "multilingual": {
+          "title": "Multilingual",
+          "description": "Determines if the application is multilingual, e.g. supports multiple content languages that can be switched",
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "translations"
+      ]
+    },
+    "require": {
+      "type": "object",
+      "title": "Application dependencies",
+      "description": "Application can rely on data provided by other applications. This is a hash of app name (keys) and version constraints (values)"
+    },
+    "app": {
+      "type": "object",
+      "title": "Properties of application server",
+      "description": "This determines how to run (if it is provided) application server. Not requires, app can be serverless",
+      "properties": {
+        "start-scripts": {
+          "type": "object",
+          "title": "Scripts to run at application startup (migrations and other)",
+          "properties": {
+            "production": {
+              "title": "Start scripts for production environment",
+              "type": "array",
+              "items": [
+                {
+                  "title": "SH script",
+                  "type": "string",
+                  "example": ".heroku/php/bin/php artisan migrate --force"
+                }
+              ]
+            },
+            "staging": {
+              "title": "Start scripts for staging environment (if not provided, production scripts will be run)",
+              "type": "array",
+              "items": [
+                {
+                  "title": "SH script",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "required": [
+            "production"
+          ]
+        },
+        "cron": {
+          "type": "array",
+          "title": "Cron jobs",
+          "description": "Tasks to run by schedule in cron style",
+          "items": [
+            {
+              "type": "object",
+              "properties": {
+                "mask": {
+                  "title": "Cron time mask",
+                  "type": "string",
+                  "example": "* * * * * *"
+                },
+                "script": {
+                  "title": "SH script to run",
+                  "type": "string",
+                  "example": ".heroku/php/bin/php artisan schedule:run"
+                }
+              },
+              "required": [
+                "mask",
+                "script"
+              ]
+            }
+          ]
+        },
+        "require": {
+          "type": "object",
+          "title": "Application server requirements",
+          "properties": {
+            "services": {
+              "type": "object",
+              "title": "Additional docker containers",
+              "description": "If application server needs some specific services, not provided by platform, here they can be described",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "image": {
+                    "type": "string",
+                    "title": "Docker image to pull from docker hub",
+                    "example": "redis"
+                  },
+                  "ports": {
+                    "type": "array",
+                    "title": "Exposed ports",
+                    "items": [
+                      {
+                        "type": "integer"
+                      }
+                    ]
+                  },
+                  "command": {
+                    "type": "array",
+                    "title": "Container CMD in array format",
+                    "items": [
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "volumes": {
+                    "type": "array",
+                    "title": "Persistent volumes",
+                    "items": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "title": "Volume name",
+                            "type": "string"
+                          },
+                          "mount-path": {
+                            "title": "Path in container to mount",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "mount-path"
+                        ]
+                      }
+                    ]
+                  },
+                  "env": {
+                    "type": "array",
+                    "title": "Environment variables",
+                    "items": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "value"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "image"
+                ]
+              }
+            }
+          }
+        },
+        "ping": {
+          "title": "Ping URL",
+          "description": "Health check will periodically ping service to be certain that it works correctly, waits for 200 response code",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start-scripts",
+        "ping"
+      ]
+    },
+    "clients": {
+      "type": "object",
+      "title": "Application clients",
+      "description": "Description of application clients, if they are provided",
+      "properties": {
+        "web": {
+          "title": "Frontend web client",
+          "type": "object",
+          "properties": {
+            "dir": {
+              "type": "string",
+              "title": "Working directory of web client",
+              "default": "web"
+            },
+            "index": {
+              "type": "string",
+              "title": "Main interface component file",
+              "default": "index.js"
+            },
+            "build": {
+              "type": "object",
+              "title": "Commands required to build application",
+              "properties": {
+                "production": {
+                  "type": "array",
+                  "title": "Build commands for production environment",
+                  "items": [
+                    {
+                      "type": "string"
+                    }
+                  ],
+                  "default": [
+                    "yarn",
+                    "yarn run production"
+                  ]
+                },
+                "staging": {
+                  "type": "array",
+                  "title": "Build commands for staging environment",
+                  "items": [
+                    {
+                      "type": "string"
+                    }
+                  ],
+                  "default": [
+                    "yarn",
+                    "yarn run staging"
+                  ]
+                }
+              }
+            },
+            "menu-extensions": {
+              "type": "array",
+              "title": "Additional widgets for menu tiles",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "title": "Technical name, alphanumeric with dashes",
+                      "example": "some-info-for-menu"
+                    },
+                    "script": {
+                      "type": "string",
+                      "title": "Component file",
+                      "example": "menu/foo.js"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "script"
+                  ]
+                }
+              ]
+            },
+            "informers": {
+              "type": "array",
+              "title": "Little informer widgets (used in main header)",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "title": "Technical name, alphanumeric with dashes",
+                      "example": "some-informer-for-main-header"
+                    },
+                    "script": {
+                      "type": "string",
+                      "title": "Component file",
+                      "example": "informers/foo.js"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "script"
+                  ]
+                }
+              ]
+            },
+            "widgets": {
+              "type": "array",
+              "title": "Portable widgets (primary for landing page, e.g. latest news block)",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "title": "Technical name, alphanumeric with dashes",
+                      "example": "some-widget-for-main-page"
+                    },
+                    "script": {
+                      "type": "string",
+                      "title": "Component file",
+                      "example": "widgets/foo.js"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "script"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "admin": {
+          "type": "object",
+          "title": "Admin web client",
+          "properties": {
+            "dir": {
+              "type": "string",
+              "title": "Working directory of admin client",
+              "default": "admin"
+            },
+            "index": {
+              "type": "string",
+              "title": "Main interface component file",
+              "default": "index.js"
+            },
+            "build": {
+              "type": "object",
+              "title": "Commands required to build application",
+              "properties": {
+                "production": {
+                  "type": "array",
+                  "title": "Build commands for production environment",
+                  "items": [
+                    {
+                      "type": "string"
+                    }
+                  ],
+                  "default": [
+                    "yarn",
+                    "yarn run production"
+                  ]
+                },
+                "staging": {
+                  "type": "array",
+                  "title": "Build commands for staging environment",
+                  "items": [
+                    {
+                      "type": "string"
+                    }
+                  ],
+                  "default": [
+                    "yarn",
+                    "yarn run staging"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "manifest-spec",
+    "version",
+    "name",
+    "icons",
+    "i18n"
+  ]
+}
