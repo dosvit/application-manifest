@@ -1,0 +1,115 @@
+{
+  "manifest-spec": "1.0",
+  "version": "1.0.0-beta",
+  "name": "test-dosvit-app",
+  "icons": {
+    "small": "assets/icons/small.svg",
+    "medium": "assets/icons/medium.svg",
+    "large": "assets/icons/big.svg"
+  },
+  "i18n": {
+    "translations": [
+      "uk",
+      "ru",
+      "en"
+    ],
+    "multilingual": true
+  },
+  "require": {
+    "dosvit/service": "^1",
+    "somedev/service2": "^1"
+  },
+  "app": {
+    "start-scripts": {
+      "production": [
+        ".heroku/php/bin/php artisan migrate --force"
+      ],
+      "staging": [
+        ".heroku/php/bin/php artisan migrate --force",
+        ".heroku/php/bin/php artisan db:seed"
+      ]
+    },
+    "cron": [
+      {
+        "mask": "* * * * * *",
+        "script": ".heroku/php/bin/php artisan schedule:run"
+      }
+    ],
+    "require": {
+      "services": {
+        "cache": {
+          "image": "redis",
+          "ports": [
+            1234
+          ],
+          "command": [
+            "php",
+            "foo",
+            "bar"
+          ],
+          "volumes": [
+            {
+              "name": "foo",
+              "mount-path": "/app/storage"
+            }
+          ],
+          "env": [
+            {
+              "name": "foo",
+              "value": "bar"
+            }
+          ]
+        }
+      }
+    },
+    "ping": "/healthcheck"
+  },
+  "clients": {
+    "web": {
+      "dir": "web",
+      "index": "index.js",
+      "build": {
+        "production": [
+          "yarn",
+          "yarn run production"
+        ],
+        "staging": [
+          "yarn",
+          "yarn run staging"
+        ]
+      },
+      "menu-extensions": [
+        {
+          "name": "some-info-for-menu",
+          "script": "tiles/foo.js"
+        }
+      ],
+      "informers": [
+        {
+          "name": "some-informer-for-main-header",
+          "script": "informers/foo.js"
+        }
+      ],
+      "widgets": [
+        {
+          "name": "some-widget-for-main-page",
+          "script": "widgets/foo.js"
+        }
+      ]
+    },
+    "admin": {
+      "dir": "admin",
+      "index": "index.js",
+      "build": {
+        "production": [
+          "yarn",
+          "yarn run production"
+        ],
+        "staging": [
+          "yarn",
+          "yarn run staging"
+        ]
+      }
+    }
+  }
+}
