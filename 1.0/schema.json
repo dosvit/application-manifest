@@ -221,11 +221,7 @@
           "description": "Health check will periodically ping service to be certain that it works correctly, waits for 200 response code",
           "type": "string"
         }
-      },
-      "required": [
-        "start-scripts",
-        "ping"
-      ]
+      }
     },
     "clients": {
       "type": "object",
