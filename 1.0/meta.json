@@ -1,0 +1,18 @@
+{
+  "uk": {
+    "title": "Назва",
+    "description": "Опис",
+    "menu": {
+      "menu-name": {
+        "title": "Назва",
+        "description": "Опис"
+      }
+    },
+    "widgets": {
+      "tile-name": {
+        "title": "Назва",
+        "description": "Опис"
+      }
+    }
+  }
+}
