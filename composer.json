@@ -1,0 +1,13 @@
+{
+    "name": "dosvit/application-manifest",
+    "description": "Application manifests for DOSVIT system",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Eternal1",
+            "email": "sent1@ukr.net"
+        }
+    ],
+    "require": {}
+}
